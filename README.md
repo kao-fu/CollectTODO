@@ -1,4 +1,4 @@
-# TODO2MD
+# todo_collect
 
 A GitHub Action to automatically convert TODO comments in your codebase into a Markdown TODO list.
 
@@ -9,8 +9,8 @@ A GitHub Action to automatically convert TODO comments in your codebase into a M
 Add this Action to your workflow:
 
 ```yaml
-- name: Run TODO2MD
-  uses: kao-fu/TODO2MD@v1
+- name: Run todo_collect
+  uses: kao-fu/todo_collect@v1
   with:
     # Add your inputs here
     # example: path: './src'
@@ -114,8 +114,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run TODO2MD
-        uses: kao-fu/TODO2MD@v1
+      - name: Run todo_collect
+        uses: kao-fu/todo_collect@v1
         with:
           path: "./src"
           output: "TODO.md" # Customize output file name
@@ -124,7 +124,7 @@ jobs:
 
 ## fake_project Directory
 
-The `fake_project` directory contains example Go code used for demonstration and testing purposes. It helps illustrate how the TODO2MD action collects TODO comments from a sample codebase. You can use or modify this directory to experiment with the action or to test its features.
+The `fake_project` directory contains example Go code used for demonstration and testing purposes. It helps illustrate how the todo_collect action collects TODO comments from a sample codebase. You can use or modify this directory to experiment with the action or to test its features.
 
 ## License
 

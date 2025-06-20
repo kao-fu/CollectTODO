@@ -8,4 +8,5 @@ func main() {
 	fmt.Println("Hello, world!")
 	// TODO[bug]: Fix the greeting message
 	// TODO[enhancement]: Add more features
+	// TODO[cleanup]: Remove unnecessary comments
 }

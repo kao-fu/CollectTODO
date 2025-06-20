@@ -143,7 +143,7 @@ func main() {
 	root := "./.action-tmp/"
 	trackerPath := "TODO_TRACKER.json"
 	// set now to tomorrow's date
-	now := time.Now().Add(24 * time.Hour).Format("2006-01-02")
+	now := time.Now().Format("2006-01-02")
 
 	found, err := scanTodos(root)
 	if err != nil {
