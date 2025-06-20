@@ -1,32 +1,56 @@
-# todo_collect
+# CollectTODO
 
-A GitHub Action to automatically convert TODO comments in your codebase into a Markdown TODO list.
+A GitHub Action to automatically collect TODO comments in your codebase and post a Markdown TODO summary as a comment on Pull Requests.
+
+---
+
+## How It Works
+
+- When you open or update a Pull Request, this Action scans your code for `// TODO[tag]: Description` comments.
+- It generates a categorized TODO summary in Markdown.
+- The summary is posted as a comment on the PR (not pushed to any branch or file).
 
 ---
 
 ## Usage
 
-Add this Action to your workflow:
+Add this Action to your workflow (e.g. `.github/workflows/todo-summary.yml`):
 
 ```yaml
-- name: Run todo_collect
-  uses: kao-fu/todo_collect@v1
-  with:
-    # Add your inputs here
-    # example: path: './src'
+name: TODO Summary
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  todo-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run CollectTODO Action
+        uses: kao-fu/CollectTODO@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-## Inputs
+---
 
-| Name          | Description                                                                | Required | Default         |
-| ------------- | -------------------------------------------------------------------------- | -------- | --------------- |
-| path          | Path to search for TODO comments                                           | false    | .               |
-| output        | Output markdown file path                                                  | false    | TODO_SUMMARY.md |
-| update-readme | Insert TODO summary into README.md (between <!-- TODO_SUMMARY --> markers) | false    | false           |
+## TODO Comment Format
 
-In your codebase, lines with pattern of `TODO[tag]: Description` will be collected into a `.md` file. The output file can be customized using the `output` input.
+Use the following format in your code:
 
-Common tags are like:
+```go
+// TODO[tag]: Description
+```
+
+Example:
+
+```go
+// TODO[urgent]: Refactor this function for better readability
+```
+
+---
+
+## Tag Examples
 
 ### Priority-Based Tags
 
@@ -78,57 +102,34 @@ Common tags are like:
 | `sre`      | Related to site reliability / ops.    |
 | `config`   | Configuration or environment-related. |
 
-## Outputs
+---
 
-A markdown file (default: `TODO_SUMMARY.md`, customizable via the `output` input)
+## Example Output (as PR Comment)
 
-```markdown
-<!-- TODO_SUMMARY -->
-
+```
 # TODO Summary
 
-## todo
-
-- **2025-06-19** (foo:25, api/foo): Add endpoint to get entries/entry by user ID
-- **2025-06-19** (foo:59, db/foo): Update the entries in the database - PayAccount
-- **2025-06-19** (foo:60, db/foo): Update the entries in the database - ReceiveAccount
+## refactor
+- **2025-06-19** (main.go:25, foo_project/main.go): Refactor this function for better readability
 
 ## research
-
-- **2025-06-19** (foo_test:11, db/foo_test): Check test assertions and error handling
-- **2025-06-19** (foo_test:68, db/foo_test): Detailed checks for the transaction status and other fields
-- **2025-06-19** (foo_test:71, db/foo_test): Check the updated balances after the transaction is written
-
-<!-- TODO_SUMMARY -->
+- **2025-06-19** (utils.go:11, foo_project/utils.go): Investigate edge case handling
 ```
 
-## Example Workflow
+---
 
-```yaml
-name: Generate/Update TODO List
-on:
-  push:
-    branches: [main]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run todo_collect
-        uses: kao-fu/todo_collect@v1
-        with:
-          path: "./src"
-          output: "TODO.md" # Customize output file name
-          update-readme: true # Optionally update README.md with summary
-```
+## Directory Structure
 
-## fake_project Directory
+- `foo_project/` — Example Go code for demonstration and testing.
+- `generate_todo_md.go` — Main logic for scanning and generating TODO summary.
+- `.github/workflows/todo-summary.yml` — Example workflow file.
+- `action.yml` — Action definition.
 
-The `fake_project` directory contains example Go code used for demonstration and testing purposes. It helps illustrate how the todo_collect action collects TODO comments from a sample codebase. You can use or modify this directory to experiment with the action or to test its features.
+---
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License.
 
 ## Contributing
 
