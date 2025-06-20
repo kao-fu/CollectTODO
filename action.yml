@@ -1,0 +1,37 @@
+name: "Generate TODO Summary"
+
+permissions:
+  pull-requests: write # 只需對 PR 留言權限
+
+description: "Scans the repository for TODO[tag]: comments and generates a markdown summary."
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.22"
+    - name: Checkout action repo
+      uses: actions/checkout@v4
+      with:
+        repository: kao-fu/TODO2MD
+        ref: main
+        path: ./.action-tmp
+    - name: Run TODO summary generator
+      id: todo-summary
+      run: |
+        bash ./.action-tmp/entrypoint.sh > todo_summary.txt
+      shell: bash
+    - name: Comment TODO summary on PR
+      if: github.event_name == 'pull_request'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body "$(cat todo_summary.txt)"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+outputs:
+  summary:
+    description: "The generated TODO summary markdown file."
+branding:
+  icon: "check-square"
+  color: "yellow"
