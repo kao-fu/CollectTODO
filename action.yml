@@ -27,7 +27,7 @@ runs:
       run: |
         gh pr comment ${{ github.event.pull_request.number }} --body "$(cat todo_summary.txt)"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
       shell: bash
 outputs:
   summary:
