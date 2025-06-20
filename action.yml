@@ -1,7 +1,8 @@
 name: "Generate TODO Summary"
 
 permissions:
-  pull-requests: write # 只需對 PR 留言權限
+  pull-requests: write
+  contents: read
 
 description: "Scans the repository for TODO[tag]: comments and generates a markdown summary."
 runs:
