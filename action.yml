@@ -16,11 +16,11 @@ runs:
       with:
         repository: kao-fu/todo_collect
         ref: main
-        path: ./.action-tmp
+        path: ./
     - name: Run TODO summary generator
       id: todo-summary
       run: |
-        bash ./.action-tmp/entrypoint.sh > todo_summary.txt
+        bash ./entrypoint.sh > todo_summary.txt
       shell: bash
     - name: Comment TODO summary on PR
       if: github.event_name == 'pull_request'
