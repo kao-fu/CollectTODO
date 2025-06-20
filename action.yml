@@ -14,7 +14,7 @@ runs:
     - name: Checkout action repo
       uses: actions/checkout@v4
       with:
-        repository: kao-fu/TODO2MD
+        repository: kao-fu/todo_collect
         ref: main
         path: ./.action-tmp
     - name: Run TODO summary generator
