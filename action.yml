@@ -12,12 +12,7 @@ runs:
       uses: actions/setup-go@v5
       with:
         go-version: "1.22"
-    - name: Checkout action repo
-      uses: actions/checkout@v4
-      with:
-        repository: kao-fu/todo_collect
-        ref: main
-        path: ./
+
     - name: Run TODO summary generator
       id: todo-summary
       run: |
