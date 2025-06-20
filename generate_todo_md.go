@@ -140,7 +140,7 @@ func writeMarkdownToStdout(todos []TodoItem) {
 }
 
 func main() {
-	root := ".tmp/"
+	root := "./"
 	trackerPath := "TODO_TRACKER.json"
 	// set now to tomorrow's date
 	now := time.Now().Format("2006-01-02")
