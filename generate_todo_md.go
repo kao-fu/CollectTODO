@@ -25,7 +25,7 @@ type TodoTracker struct {
 	Todos []TodoItem `json:"todos"`
 }
 
-var todoPattern = regexp.MustCompile(`// TODO\[(\w+)\]: (.+)`)
+var todoPattern = regexp.MustCompile(`TODO\[(\w+)\]: (.+)`)
 
 func scanTodos(root string) ([]TodoItem, error) {
 	var todos []TodoItem
@@ -142,7 +142,6 @@ func writeMarkdownToStdout(todos []TodoItem) {
 func main() {
 	root := "./"
 	trackerPath := "TODO_TRACKER.json"
-	// set now to tomorrow's date
 	now := time.Now().Format("2006-01-02")
 
 	found, err := scanTodos(root)
