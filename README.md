@@ -55,14 +55,20 @@ jobs:
 
 Use the following format in your code:
 
+- Go as example
+
 ```go
 // TODO[tag]: Description
+
+// TODO[urgent]: Refactor this function for better readability
 ```
 
-Example:
+- Python as example
 
-```go
-// TODO[urgent]: Refactor this function for better readability
+```python
+# TODO[tag]: Description
+
+# TODO[urgent]: Refactor this function for better readability
 ```
 
 ---
