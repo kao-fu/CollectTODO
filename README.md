@@ -2,6 +2,8 @@
 
 A GitHub Action to automatically collect TODO comments in your codebase and post a Markdown TODO summary as a comment on Pull Requests.
 
+It is basically not recommended to merge any developing branch with unresolved TODOs into main branch, but a issued TODO. For a new work, always create an Issue and a new branch.
+
 ---
 
 ## How It Works
@@ -73,7 +75,7 @@ Use the following format in your code:
 
 ---
 
-## Tag Examples
+## Tag Examples (By ChatGPT)
 
 ### Priority-Based Tags
 
