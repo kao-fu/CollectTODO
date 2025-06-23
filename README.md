@@ -6,30 +6,47 @@ A GitHub Action to automatically collect TODO comments in your codebase and post
 
 ## How It Works
 
-- When you open or update a Pull Request, this Action scans your code for `// TODO[tag]: Description` comments.
+- When you open or update a Pull Request, this Action scans your code for `TODO[tag]: Description` comments.
 - It generates a categorized TODO summary in Markdown.
 - The summary is posted as a comment on the PR (not pushed to any branch or file).
 
 ---
 
-## Usage
+## Usage Example
 
 Add this Action to your workflow (e.g. `.github/workflows/todo-summary.yml`):
 
 ```yaml
-name: TODO Summary
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: TODO-Summary
+permissions:
+  contents: read
+  pull-requests: write # Required to update PR with TODO summary
+
 on:
+  push:
+    branches: ["main"]
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches: ["main", "develop/*"]
+
 jobs:
-  todo-summary:
+  test:
+    name: TODO Summary
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run CollectTODO Action
-        uses: kao-fu/CollectTODO@v1
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24"
+
+      - name: Run CollectTODO
+        uses: kao-fu/CollectTODO@main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ---
@@ -120,16 +137,11 @@ Example:
 
 ## Directory Structure
 
-- `foo_project/` — Example Go code for demonstration and testing.
 - `generate_todo_md.go` — Main logic for scanning and generating TODO summary.
 - `.github/workflows/todo-summary.yml` — Example workflow file.
 - `action.yml` — Action definition.
 
 ---
-
-## License
-
-MIT License.
 
 ## Contributing
 
