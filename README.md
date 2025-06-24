@@ -19,17 +19,12 @@ It is basically not recommended to merge any developing branch with unresolved T
 Add this Action to your workflow (e.g. `.github/workflows/todo-summary.yml`):
 
 ```yaml
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
 name: TODO-Summary
 permissions:
   contents: read
   pull-requests: write # Required to update PR with TODO summary
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main", "develop/*"]
 
@@ -49,7 +44,20 @@ jobs:
         uses: kao-fu/CollectTODO@main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Optional inputs:
+          root_dir: ./src
+          blacklist: node_modules,.git
+          whitelist: main.go,utils.go
 ```
+
+### Action Inputs
+
+| Name      | Type   | Required | Description                                                                           |
+| --------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| root_dir  | string | No       | Root directory to scan for TODOs. Default is the repository root.                     |
+| blacklist | string | No       | Comma-separated list of base names/extensions/paths to ignore.                        |
+| whitelist | string | No       | Comma-separated list of base names/extensions/paths to include (overrides blacklist). |
 
 ---
 
@@ -145,7 +153,7 @@ Use the following format in your code:
 
 ## Directory Structure
 
-- `generate_todo_md.go` — Main logic for scanning and generating TODO summary.
+- `main.go` — Main logic for scanning and generating TODO summary.
 - `.github/workflows/todo-summary.yml` — Example workflow file.
 - `action.yml` — Action definition.
 
