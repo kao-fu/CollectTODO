@@ -30,6 +30,10 @@ var todoPattern = regexp.MustCompile(`TODO\[(\w+)\]: (.+)`)
 
 const maxFileSize = 500 * 1024 // 500 KB
 
+var blacklist = map[string]bool{
+	".action-tmp": true, // Folder itself when executing Github Action
+}
+
 // formatSkippedFilesMarkdown returns a markdown string for skipped files
 func formatSkippedFilesMarkdown(skippedFiles []string) string {
 	if len(skippedFiles) == 0 {
@@ -44,66 +48,44 @@ func formatSkippedFilesMarkdown(skippedFiles []string) string {
 	return b.String()
 }
 
-func shouldFileScan(path string) bool {
-	// Normalize path to lowercase for case-insensitive comparison, and get base name and extension
+// Checks if a path or its base name / file extension is in the ignore list
+func isInBlacklist(path string, blacklist map[string]bool) bool {
 	baseName := strings.ToLower(filepath.Base(path))
 	fileExt := strings.ToLower(filepath.Ext(path))
-
-	// --- 1. Exclude common hidden/system files and directories ---
-	// These are typically not source code and can cause issues or are irrelevant for scanning.
-	// We'll check for directories like .git earlier in the file walk, but this is a good
-	// redundant check for files.
-	excludedNames := map[string]bool{
-		".git":        true, // .git folder content
-		".vscode":     true, // VS Code config folder
-		".idea":       true, // IntelliJ IDEA config folder
-		".ds_store":   true, // macOS system file
-		"thumbs.db":   true, // Windows system file
-		"__pycache__": true, // Python cache directory
-	}
-	if excludedNames[baseName] || strings.HasPrefix(baseName, ".") {
-		// If it's a dotfile (like .gitignore, .env) or an explicitly excluded name
-		// For .gitignore, .env, etc., we generally don't expect TODOs.
-		return false
-	}
-
-	// --- 2. Check for specific filenames without extensions ---
-	// These are common source/config files that don't always have extensions.
-	if baseName == "dockerfile" || baseName == "makefile" {
+	if blacklist[baseName] || blacklist[fileExt] || blacklist[path] {
 		return true
 	}
-
-	// --- 3. Check for common source code and configuration file extensions ---
-	// This map allows for quick O(1) lookup.
-	targetExtensions := map[string]bool{
-		// Primary Source Code & Scripting Files
-		".c": true, ".h": true, ".cpp": true, ".hpp": true,
-		".java": true, ".js": true, ".jsx": true, ".ts": true,
-		".tsx": true, ".py": true, ".go": true, ".cs": true,
-		".rb": true, ".php": true, ".sh": true, ".swift": true,
-		".kt": true, ".rs": true,
-
-		// Configuration & Markup Files
-		".html": true, ".htm": true, ".css": true, ".scss": true,
-		".less": true, ".xml": true, ".yaml": true, ".yml": true,
-		".md": true, ".sql": true,
+	for ignore := range blacklist {
+		if ignore == "" {
+			continue
+		}
+		if strings.HasPrefix(path, ignore) {
+			return true
+		}
 	}
-
-	return targetExtensions[fileExt]
+	return false
 }
 
-// scanTodos walks the directory tree and collects TODOs, also recording skipped files
-func scanTodos(root string) ([]TodoItem, []string, error) {
+func scanTodos(root string, blacklist map[string]bool) ([]TodoItem, []string, error) {
 	var todos []TodoItem
 	var skippedFiles []string
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() || (!shouldFileScan(path)) {
-			return nil
+
+		if isInBlacklist(path, blacklist) {
+			if d.IsDir() {
+				return filepath.SkipDir // Skip directory if it's in the blacklist
+			}
+			return nil // Skip file if it's in the blacklist
 		}
 
+		if d.IsDir() {
+			return nil // Continue walking directories
+		}
+
+		// Check file size before opening
 		info, err := os.Stat(path)
 		if err == nil && info.Size() > int64(maxFileSize) {
 			skippedFiles = append(skippedFiles, path)
@@ -218,14 +200,33 @@ func writeMarkdownToStdout(todos []TodoItem) {
 func main() {
 	// Define the --root flag
 	root := flag.String("root", ".", "Root directory to scan")
+	blacklistArg := flag.String("blacklist", "", "Comma-separated list of base names/extensions/paths to ignore")
+	whitelistArg := flag.String("whitelist", "", "Comma-separated list of base names/extensions/paths to include (overrides blacklist)")
 
 	// Parse the flags from command line
 	flag.Parse()
 
+	if *blacklistArg != "" {
+		for _, p := range strings.Split(*blacklistArg, ",") {
+			trimmed := strings.TrimSpace(p)
+			if trimmed != "" {
+				blacklist[trimmed] = true
+			}
+		}
+	}
+	if *whitelistArg != "" {
+		for _, p := range strings.Split(*whitelistArg, ",") {
+			trimmed := strings.TrimSpace(p)
+			if trimmed != "" {
+				blacklist[trimmed] = false
+			}
+		}
+	}
+
 	trackerPath := "todo_tracker.json"
 	now := time.Now().Format("2006-01-02")
 
-	found, skippedFiles, err := scanTodos(*root)
+	found, skippedFiles, err := scanTodos(*root, blacklist)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error scanning todos: %v\n", err)
 		os.Exit(1)
