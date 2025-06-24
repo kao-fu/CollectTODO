@@ -33,7 +33,7 @@ func scanTodos(root string) ([]TodoItem, error) {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() || (!strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, ".ts") && !strings.HasSuffix(path, ".js")) {
+		if d.IsDir() {
 			return nil
 		}
 		file, err := os.Open(path)
