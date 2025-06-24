@@ -5,6 +5,19 @@ permissions:
   contents: read
 
 description: "Scans the repository for TODO[tag]: comments and generates a markdown summary."
+inputs:
+  root_dir:
+    description: "Root directory to scan (optional)"
+    required: false
+    default: ""
+  blacklist:
+    description: "Blacklist pattern (optional)"
+    required: false
+    default: ""
+  whitelist:
+    description: "Whitelist pattern (optional)"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -21,7 +34,11 @@ runs:
     - name: Run TODO summary generator
       id: todo-summary
       run: |
-        go run ./.action-tmp/main.go > todo_summary.txt
+        go run ./.action-tmp/main.go \
+          ${{ inputs.root_dir && format('--root {0}', inputs.root_dir) || '' }} \
+          ${{ inputs.blacklist && format('--blacklist {0}', inputs.blacklist) || '' }} \
+          ${{ inputs.whitelist && format('--whitelist {0}', inputs.whitelist) || '' }} \
+          > todo_summary.txt
       shell: bash
     - name: Comment TODO summary on PR
       if: github.event_name == 'pull_request'
