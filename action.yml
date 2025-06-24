@@ -21,7 +21,7 @@ runs:
     - name: Run TODO summary generator
       id: todo-summary
       run: |
-        bash ./.action-tmp/entrypoint.sh > todo_summary.txt
+        go run ./.action-tmp/main.go > todo_summary.txt
       shell: bash
     - name: Comment TODO summary on PR
       if: github.event_name == 'pull_request'
