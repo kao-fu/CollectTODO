@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -215,11 +216,16 @@ func writeMarkdownToStdout(todos []TodoItem) {
 }
 
 func main() {
-	root := "./"
+	// Define the --root flag
+	root := flag.String("root", ".", "Root directory to scan")
+
+	// Parse the flags from command line
+	flag.Parse()
+
 	trackerPath := "todo_tracker.json"
 	now := time.Now().Format("2006-01-02")
 
-	found, skippedFiles, err := scanTodos(root)
+	found, skippedFiles, err := scanTodos(*root)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error scanning todos: %v\n", err)
 		os.Exit(1)
